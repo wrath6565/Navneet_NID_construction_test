@@ -34,7 +34,7 @@ function draw() {
   background(0);
 
   // update rotation
-  angle += 0.2;
+  angle += 0.3;
 
   // regenerate pattern every few frames
   if (frameCount % regenInterval === 0) regeneratePattern();
