@@ -1,9 +1,11 @@
-let size = 100,g0,g1,g2;
+let size = 100, genImage=[], noImage=3;
+
 
 function preload() {
-  g0 = loadImage("6images/0.png");
-  g1 = loadImage("6images/1.png");
-  g2 = loadImage("6images/2.png");
+  for (let i=0; i<noImage; i++) {
+ // g0 = loadImage("6images/0.png");
+ // g1 = loadImage("6images/1.png");
+  //g2 = loadImage("6images/2.png");
   
 }
 function setup() {
