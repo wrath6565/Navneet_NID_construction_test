@@ -7,7 +7,11 @@ function setup() {
   console.log("the length is " + fruits.length);
   for(let i =0; i<fruits.length; i++){
     console.log(fruits[i]);
+
   }
+  //addingto the array
+
+  fruits[fruits.length]="grapes"
 }
 
 function draw() {

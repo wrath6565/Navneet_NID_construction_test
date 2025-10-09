@@ -1,9 +1,9 @@
 let size = 100,g0,g1,g2;
 
 function preload() {
-  g0 = loadImage("6images/001.png");
-  g1 = loadImage("6images/002.png");
-  g2 = loadImage("6images/003.png");
+  g0 = loadImage("6images/0.png");
+  g1 = loadImage("6images/1.png");
+  g2 = loadImage("6images/2.png");
   
 }
 function setup() {
