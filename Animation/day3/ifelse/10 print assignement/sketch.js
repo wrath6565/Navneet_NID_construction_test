@@ -5,7 +5,7 @@ let cols, rows;
 let grid = [];
 let radius;
 let angle = 0;
-const regenInterval = 5;
+const regenInterval = 0.5;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
@@ -34,7 +34,7 @@ function draw() {
   background(0);
 
   // update rotation
-  angle += 0.04;
+  angle += 0.2;
 
   // regenerate pattern every few frames
   if (frameCount % regenInterval === 0) regeneratePattern();
