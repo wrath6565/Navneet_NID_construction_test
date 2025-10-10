@@ -1,6 +1,6 @@
 let spriteImg;
 let sRows = 4, sCols=8;
-let aniCount = 0;
+let aniCount = 0;60.
 let sprite = []
 
   // Load assets 
