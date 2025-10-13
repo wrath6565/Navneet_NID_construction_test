@@ -1,9 +1,10 @@
-let size = 100,g0,g1,g2;
+let size = 50,g0,g1,g2,g3;
 
 function preload() {
-  g0 = loadImage("6images/0.png");
-  g1 = loadImage("6images/1.png");
-  g2 = loadImage("6images/2.png");
+  g0 = loadImage("6images/Frame 65.png");
+  g1 = loadImage("6images/Frame 66.png");
+  g2 = loadImage("6images/Frame 67.png");
+  g3 = loadImage("6images/Frame 68.png")
   
 }
 function setup() {
@@ -26,13 +27,16 @@ function draw() {
      // rotate(90*floor(random(0,3)));
       //translate(-i-50,-j-50);
       
-      let choice = floor(random(0,3));
+      let choice = floor(random(0,4));
       if (choice ==0) {
         image(g0,i,j)
       }else if (choice ==1) {
         image(g1,i,j)
-      } else {
+
+      }else if (choice ==2) {
         image(g2,i,j)
+      } else {
+        image(g3,i,j)
       }
      // pop();
     }
