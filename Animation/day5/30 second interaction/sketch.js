@@ -11,7 +11,7 @@ let walls = []; // array to store wall objects
 let castl;
 
 let showMessage = false; // flag to show message
-let messageText = "Sometimes a devil also needs a break";
+let messageText = "Sometimes the devil also need a break";
 let gamePaused = false; // flag to stop player input when message shows
 
 function preload() {
