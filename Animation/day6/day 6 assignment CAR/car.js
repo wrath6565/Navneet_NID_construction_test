@@ -23,9 +23,5 @@ class Car {
     }
   }
 
-  grow() {
-    if (this.size < 200) {
-      this.size += 1;
-    }
-  }
+  
 }
