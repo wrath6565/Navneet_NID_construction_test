@@ -11,7 +11,7 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  background(20);
   gBall.show();
   lPaddle.show();
   rPaddle.show();
