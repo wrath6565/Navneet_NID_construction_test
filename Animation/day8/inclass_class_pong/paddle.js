@@ -4,7 +4,7 @@ class paddle {
         this.y = y;
         this.width = 20;
         this.height = 60;  
-        this.speed = 10;
+        this.speed = 8;
     }
     show() {
         rect(this.x, this.y, this.width, this.height);
