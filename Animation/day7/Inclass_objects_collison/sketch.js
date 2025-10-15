@@ -6,7 +6,7 @@ function setup() {
 
 
 function mousePressed() {
-  let tempFlower = new Flower(mouseX, mouseY, random(-5, 5), random(-5, 5));
+  let tempFlower = new Flower(mouseX, mouseY, random(-2, 2), random(-2, 2));
   flower.push(tempFlower);
 }
 
@@ -18,7 +18,7 @@ function draw() {
       if (i != j) {
         flower[i].checkCollision(flower[j]);
       }
-    flower[i].changeColour(mouseX, mouseY);
+   // flower[i].changeColour(mouseX, mouseY);
     flower[i].move();
     flower[i].drawFlower();
   }

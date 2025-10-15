@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(innerWidth, innerHeight);
 }
 
 function draw() {
@@ -10,8 +10,8 @@ function draw() {
 
   // perlin noise in 2D
 
-  for(let i=0; i<width; i+=5){
-    for(let j=0; j<height; j+=5){
+  for(let i=0; i<width; i+=6){
+    for(let j=0; j<height; j+=6){
       
       let outputNoise = noise(0.005*(i+frameCount), 0.005*j);
       //print(outputNoise);
