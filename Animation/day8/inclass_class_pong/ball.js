@@ -22,7 +22,7 @@ class Ball {
 
     checkCollisionWall() {
         if (this.y < this.size / 2 || this.y > height - this.size / 2) {
-            this.ySpeed = -this.ySpeed;
+            this.ySpeed = -this.ySpeed*1.5;
         }
     }
     checkWinner() {
@@ -48,7 +48,7 @@ class Ball {
     }
     checkCollisionWall() {
         if (this.y < this.size / 2 || this.y > height - this.size / 2) {
-            this.ySpeed = -this.ySpeed;
+            this.ySpeed = -this.ySpeed*1.1;
         }
     }
 
