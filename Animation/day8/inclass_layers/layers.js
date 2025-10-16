@@ -19,7 +19,7 @@ class Layer {
     if(this.width > width || this.width<100) {
       this.speed = -this.speed;
     } 
- 
+ dddd
   }
 
 
