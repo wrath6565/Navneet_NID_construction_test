@@ -11,8 +11,8 @@ let currentMap = 1;
 let gameEnded = false;
 
 // transition zones for each map
-let transitionZone1 = { x: 750, y: 750, size: 50 };
-let transitionZone2 = { x: 750, y: 750, size: 50 };
+let transitionZone1 = { x: 700, y: 700, size: 100 };
+let transitionZone2 = { x: 700, y: 700, size: 100 };
 
 function preload() {
   spriteSheet = loadImage("images/02.png");
@@ -76,7 +76,7 @@ function draw() {
     // Handle transitions
     if (currentMap === 1) {
       noFill();
-      stroke(255, 255, 0);
+      noStroke();
       rect(transitionZone1.x, transitionZone1.y, transitionZone1.size, transitionZone1.size);
 
       if (playerTouchesZone(player, transitionZone1)) {
@@ -85,7 +85,7 @@ function draw() {
 
     } else if (currentMap === 2) {
       noFill();
-      stroke(255, 0, 0);
+      noStroke();
       rect(transitionZone2.x, transitionZone2.y, transitionZone2.size, transitionZone2.size);
 
       if (playerTouchesZone(player, transitionZone2)) {
