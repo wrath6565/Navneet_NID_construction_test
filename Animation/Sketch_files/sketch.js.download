@@ -1,0 +1,80 @@
+let player;
+let spriteSheet;
+let wallImg;
+let walls = [];
+let bg1, bg2;
+
+let gameStarted = false; // tracks whether Enter has been pressed
+let currentMap = 1;
+
+function preload() {
+  spriteSheet = loadImage("images/02.png");
+  wallImg = loadImage("images/wall1.png");
+  bg1 = loadImage("images/bg1.png");
+  bg2 = loadImage("images/bg2.png");
+}
+
+function setup() {
+  createCanvas(800, 800);
+
+  // create player — sprite sheet has 5 columns, 4 rows
+  player = new Player(0, 0, spriteSheet, 5, 4);
+
+  // setup first map
+  setupMap1();
+}
+
+function draw() {
+  background(0);
+
+  rect(750,750,50,50)
+
+  if (!gameStarted) {
+    // Start screen
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(36);
+    text("PRESS ENTER TO START", width / 2, height / 2);
+  } else {
+    // Game running
+    // draw background depending on current map
+    if (currentMap === 1) {
+      image(bg1, 0, 0, width, height);
+    } else if (currentMap === 2) {
+      image(bg2, 0, 0, width, height);
+    }
+
+    // draw walls
+    for (let wall of walls) {
+      wall.show();
+    }
+
+    // move and show player
+    player.move(walls);
+    player.show();
+
+    
+  }
+}
+
+function keyPressed() {
+  // Start game when Enter is pressed
+  if (!gameStarted && keyCode === ENTER) {
+    gameStarted = true;
+  }
+}
+
+function setupMap1() {
+  walls = [];
+  walls.push(new Wall(200, 200, 100, 20, wallImg));
+  walls.push(new Wall(100, 300, 20, 100, wallImg));
+  walls.push(new Wall(400, 400, 150, 30, wallImg));
+}
+
+function setupMap2() {
+  walls = [];
+  walls.push(new Wall(50, 50, 150, 20, wallImg));
+  walls.push(new Wall(300, 200, 20, 150, wallImg));
+  walls.push(new Wall(500, 500, 100, 100, wallImg));
+}
+
