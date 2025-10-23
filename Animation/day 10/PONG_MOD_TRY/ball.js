@@ -38,23 +38,16 @@ class Ball {
       this.y - this.size / 2 < paddle.y + paddle.height
     ) {
       this.xSpeed *= -1;
-      if (this.x < width / 2) {
-        this.x = paddle.x + paddle.width + this.size / 2;
-      } else {
-        this.x = paddle.x - this.size / 2;
-      }
+      if (this.x < width / 2) this.x = paddle.x + paddle.width + this.size / 2;
+      else this.x = paddle.x - this.size / 2;
       this.xSpeed *= 1.05;
       this.ySpeed *= 1.05;
     }
   }
 
   checkWinner() {
-    if (this.x < -this.size / 2) {
-      return 2;
-    } else if (this.x > width + this.size / 2) {
-      return 1;
-    } else {
-      return 0;
-    }
+    if (this.x < -this.size / 2) return 2;
+    else if (this.x > width + this.size / 2) return 1;
+    else return 0;
   }
 }
