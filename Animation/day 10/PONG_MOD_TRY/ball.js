@@ -21,7 +21,12 @@ class Ball {
   reset() {
     this.x = width / 2;
     this.y = height / 2;
-    this.xSpeed *= -1;
+
+    // randomize direction but keep speed constant
+    let angle = random([-PI / 4, PI / 4, (3 * PI) / 4, (5 * PI) / 4]);
+    let speed = 5; // constant faster speed
+    this.xSpeed = speed * cos(angle);
+    this.ySpeed = speed * sin(angle);
   }
 
   checkCollisionWall() {
@@ -37,11 +42,9 @@ class Ball {
       this.y + this.size / 2 > paddle.y &&
       this.y - this.size / 2 < paddle.y + paddle.height
     ) {
-      this.xSpeed *= -1;
+      this.xSpeed *= -1; // just bounce, no acceleration
       if (this.x < width / 2) this.x = paddle.x + paddle.width + this.size / 2;
       else this.x = paddle.x - this.size / 2;
-      this.xSpeed *= 1.05;
-      this.ySpeed *= 1.05;
     }
   }
 

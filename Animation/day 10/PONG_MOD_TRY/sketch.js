@@ -1,32 +1,27 @@
 let gBall;
 let lPaddle;
 let rPaddle;
-let malusBall = null;
-
 let player1 = 0;
 let player2 = 0;
 
-// Timer variables (ms)
-let lastSpawnTime = 0;
-let spawnInterval = 45000; // 45 seconds between spawns
-let malusLifetime = 45000; // malus stays 45 seconds
-let malusSpawnedAt = 0;
+let malusBall = null;
+let malusActive = false;
+let lastMalusTime = 0;
+let malusDuration = 45000; // 45 seconds visible
+let malusCooldown = 45000; // 45 seconds delay between spawns
 
 function setup() {
   createCanvas(800, 400);
-
-  gBall = new Ball(width / 2, height / 2, 3, 3);
+  gBall = new Ball(width / 2, height / 2, 5, 5);
   lPaddle = new Paddle(0, height / 2 - 30);
   rPaddle = new Paddle(width - 20, height / 2 - 30);
-
-  lastSpawnTime = millis();
-  malusSpawnedAt = 0;
+  lastMalusTime = millis();
 }
 
 function draw() {
   background(20);
 
-  // Score display
+  // --- SCORE DISPLAY ---
   textAlign(CENTER, CENTER);
   textSize(64);
   fill(255);
@@ -34,18 +29,18 @@ function draw() {
   text(":", width / 2, 50);
   text(nf(player2, 3), width / 2 + 100, 50);
 
-  // Main ball
+  // --- MAIN BALL ---
   gBall.move();
+  gBall.checkCollisionWall();
   gBall.checkCollisionPaddle(lPaddle);
   gBall.checkCollisionPaddle(rPaddle);
-  gBall.checkCollisionWall();
   gBall.show();
 
-  // Paddles
+  // --- PADDLES ---
   lPaddle.show();
   rPaddle.show();
 
-  // Scoring
+  // --- SCORE UPDATE ---
   let point = gBall.checkWinner();
   if (point == 1) {
     if (player1 < 999) player1++;
@@ -55,41 +50,40 @@ function draw() {
     gBall.reset();
   }
 
-  // --- Malus ball logic ---
-  let currentTime = millis();
-
-  // Spawn malus ball every 45s
-  if (!malusBall && currentTime - lastSpawnTime >= spawnInterval) {
-    const sx = random(50, width - 50);
-    const sy = random(40, height - 40);
-    malusBall = new MalusBall(sx, sy);
-    malusSpawnedAt = currentTime;
-  }
-
-  if (malusBall) {
-    malusBall.move();
-    malusBall.show();
-
-    // Check collisions
-    if (malusBall.checkCollision(lPaddle)) {
-      if (player1 > 0) player1--;
-      lPaddle.y += 4; // prevent repeated collision
-    }
-    if (malusBall.checkCollision(rPaddle)) {
-      if (player2 > 0) player2--;
-      rPaddle.y += 4;
-    }
-
-    // Despawn after 45s
-    if (currentTime - malusSpawnedAt >= malusLifetime) {
-      malusBall = null;
-      lastSpawnTime = currentTime;
-    }
-  }
-
-  // Paddle controls
+  // --- PLAYER CONTROLS ---
   if (keyIsDown(UP_ARROW)) rPaddle.moveUp();
   if (keyIsDown(DOWN_ARROW)) rPaddle.moveDown();
   if (keyIsDown(87)) lPaddle.moveUp(); // W
   if (keyIsDown(83)) lPaddle.moveDown(); // S
+
+  // --- MALUS BALL TIMER SYSTEM ---
+  let currentTime = millis();
+
+  // Spawn malus ball after cooldown if inactive
+  if (!malusActive && currentTime - lastMalusTime >= malusCooldown) {
+    malusBall = new MalusBall(gBall.x, gBall.y, 5);
+    malusActive = true;
+    lastMalusTime = currentTime;
+  }
+
+  // Despawn after 45 seconds
+  if (malusActive && currentTime - lastMalusTime >= malusDuration) {
+    malusBall = null;
+    malusActive = false;
+    lastMalusTime = currentTime;
+  }
+
+  // --- MALUS BALL BEHAVIOR ---
+  if (malusBall && malusBall.active) {
+    malusBall.move();
+    malusBall.checkCollisionWall();
+    malusBall.checkCollisionPaddle(lPaddle, true);
+    malusBall.checkCollisionPaddle(rPaddle, false);
+    malusBall.show();
+  } else if (malusBall && !malusBall.active) {
+    // if hit a paddle, remove it immediately
+    malusBall = null;
+    malusActive = false;
+    lastMalusTime = millis();
+  }
 }
