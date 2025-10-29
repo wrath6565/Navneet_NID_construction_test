@@ -4,15 +4,15 @@ let malusBalls = [];
 let leftScore = 0;
 let rightScore = 0;
 
-const MALUS_LIMIT = 1000; 
-let apocalypseStart = null; 
-let apocalypseDuration = 30000; 
-let apocalypseFullTime = null; 
+const MALUS_LIMIT = 1000;
+let apocalypseStart = null;
+let apocalypseDuration = 30000;
+let apocalypseFullTime = null;
 let diedShown = false;
 let allowRestart = false; // allow restarting after black screen
 
 function setup() {
-  createCanvas(windowWidth-15, windowHeight-15);
+  createCanvas(windowWidth - 15, windowHeight - 15);
   resetGame();
 }
 
