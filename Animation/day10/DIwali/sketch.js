@@ -19,11 +19,16 @@ let frameCounter = 0; // for animation timing
 
 let playerDirection = "right"; // "right" or "left"
 
-// Platform properties
-let platformHeight = 100;
+// 🌫️ cloud overlay image for foggy memory
+let cloudOverlay;
 
 // Background images array
 let backgroundImages = [];
+
+// 🔊 Audio for memory backgrounds
+let aSounds = [];          // will hold p5.SoundFile objects for a1..a5
+let aSoundsLoaded = [false, false, false, false, false]; // track loaded state
+let currentSoundIndex = -1; // index of currently playing sound in memory (-1 = none)
 
 function preload() {
   // Load player sprites
@@ -31,11 +36,51 @@ function preload() {
   spriteSheetLeft = loadImage('Image/03.png'); // left-facing sprite
 
   // Load background images
-  backgroundImages.push(loadImage('Image/bg1.png'));
-  backgroundImages.push(loadImage('Image/bg2.png'));
-  backgroundImages.push(loadImage('Image/bg3.png'));
-  backgroundImages.push(loadImage('Image/bg4.png'));
-  backgroundImages.push(loadImage('Image/bg5.png'));
+  backgroundImages.push(loadImage('Image/p1.png'));
+  backgroundImages.push(loadImage('Image/p2.png'));
+  backgroundImages.push(loadImage('Image/p3.png'));
+  backgroundImages.push(loadImage('Image/p4.png'));
+  backgroundImages.push(loadImage('Image/p5.png'));
+
+  // Load the fog/cloud overlay image
+  cloudOverlay = loadImage('Image/c1.png');
+
+  // Load audio files for each background (p1 -> a1, p2 -> a2, ...)
+  // Using callbacks to log success/failure
+  let paths = [
+    'Image/a1.mp3',
+    'Image/a2.mp3',
+    'Image/a3.mp3',
+    'Image/a4.mp3',
+    'Image/a5.mp3'
+  ];
+
+  for (let i = 0; i < paths.length; i++) {
+    // wrap index in closure for callback
+    ((idx) => {
+      try {
+        let s = loadSound(
+          paths[idx],
+          // success callback
+          () => {
+            console.log(`Audio loaded: ${paths[idx]} (index ${idx})`);
+            aSounds[idx] = s;
+            aSoundsLoaded[idx] = true;
+          },
+          // error callback
+          (err) => {
+            console.error(`Failed to load audio: ${paths[idx]}`, err);
+            aSounds[idx] = null;
+            aSoundsLoaded[idx] = false;
+          }
+        );
+      } catch (e) {
+        console.error('Exception while calling loadSound for', paths[idx], e);
+        aSounds[idx] = null;
+        aSoundsLoaded[idx] = false;
+      }
+    })(i);
+  }
 }
 
 function setup() {
@@ -54,6 +99,9 @@ function setup() {
   }
 
   resetGame();
+
+  // Helpful console note
+  console.log("Setup complete. Note: If audio doesn't play, ensure p5.sound.js is included and user interacted (click/press).");
 }
 
 function draw() {
@@ -69,8 +117,14 @@ function draw() {
 
   } else if (gameState === "playing") {
     drawBackground();
-    drawPlatform();
+
+    // Show fog overlay during the entire first phase (playing)
+    image(cloudOverlay, 0, 0, width, height);
+
     drawPlayerManual();
+
+    // Ensure no memory sounds play while not in memory
+    stopMemorySoundIfPlaying();
 
   } else if (gameState === "fastCycle") {
     let elapsed = millis() - cycleStartTime;
@@ -88,8 +142,14 @@ function draw() {
     playerX = within * width;
 
     drawBackground();
-    drawPlatform();
+
+    // Keep fog overlay visible throughout fastCycle
+    image(cloudOverlay, 0, 0, width, height);
+
     drawPlayerSprite();
+
+    // Ensure no memory sounds play while not in memory
+    stopMemorySoundIfPlaying();
 
   } else if (gameState === "fastCycleEnd") {
     background(0); // black screen
@@ -101,23 +161,27 @@ function draw() {
     fill(255);
     text("Press ENTER to relive the memory of Diwali", width / 2, height / 2 + 20);
 
+    // Ensure no memory sounds play while not in memory
+    stopMemorySoundIfPlaying();
+
   } else if (gameState === "memory") {
     drawBackground();
-    drawPlatform();
     drawPlayerSprite();
+
+    // Start/resume the appropriate audio for the current background
+    manageMemoryAudio();
 
     // movement logic in memory mode
     if (keyIsDown(RIGHT_ARROW)) {
       playerX += playerSpeed;
       playerDirection = "right";
 
-      // move to next background if player crosses the right edge
       if (playerX > width) {
         if (currentBg < backgroundImages.length - 1) {
           currentBg++;
           playerX = 0;
         } else {
-          playerX = width; // stay at right edge on last background
+          playerX = width;
         }
       }
     }
@@ -126,13 +190,12 @@ function draw() {
       playerX -= playerSpeed;
       playerDirection = "left";
 
-      // move to previous background if player crosses left edge
       if (playerX + frameWidth < 0) {
         if (currentBg > 0) {
           currentBg--;
           playerX = width - frameWidth;
         } else {
-          playerX = 0; // stay at left edge on first background
+          playerX = 0;
         }
       }
     }
@@ -160,7 +223,6 @@ function draw() {
 
   } else if (gameState === "end") {
     drawBackground();
-    drawPlatform();
     fill(255, 204, 0);
     textAlign(CENTER, CENTER);
     textSize(36);
@@ -170,6 +232,9 @@ function draw() {
     text("Press ESC to end the process", width / 2, height / 2 + 10);
     text("or", width / 2, height / 2 + 35);
     text("Press ENTER to relive the memory of Diwali", width / 2, height / 2 + 60);
+
+    // Ensure no memory sounds play while not in memory
+    stopMemorySoundIfPlaying();
   }
 }
 
@@ -177,19 +242,14 @@ function drawBackground() {
   image(backgroundImages[currentBg], 0, 0, width, height);
 }
 
-function drawPlatform() {
-  fill(0); // black
-  noStroke();
-  rect(0, height - platformHeight, width, platformHeight);
-}
-
+// Draw player sprite with animation
 function drawPlayerSprite() {
   let frames = playerDirection === "right" ? spriteFramesRight : spriteFramesLeft;
 
   // animate only when moving
   if (keyIsDown(RIGHT_ARROW) || keyIsDown(LEFT_ARROW)) {
     frameCounter++;
-    if (frameCounter % 5 === 0) { // slower animation
+    if (frameCounter % 5 === 0) {
       currentFrame = (currentFrame + 1) % totalFrames;
     }
   }
@@ -220,24 +280,90 @@ function drawPlayerManual() {
 
 function keyPressed() {
   if (gameState === "start" && keyCode === ENTER) gameState = "playing";
+
   if (gameState === "playing" && keyCode === RIGHT_ARROW) {
     playerX = 0;
     cycleStartTime = millis();
     gameState = "fastCycle";
   }
+
   if (gameState === "end" && keyCode === ESCAPE) noLoop();
+
+  // When user presses ENTER to relive memory: resetGame() then switch to memory.
+  // This is a user gesture so resuming the audio context here helps browser autoplay policies.
   if ((gameState === "end" || gameState === "fastCycleEnd") && keyCode === ENTER) {
     resetGame();
+    try { if (typeof getAudioContext === 'function') getAudioContext().resume(); } catch (e) {}
     gameState = "memory";
   }
+
+  // always resume audio context on any key press (helps autoplay restrictions)
+  try { if (typeof getAudioContext === 'function') getAudioContext().resume(); } catch (e) {}
+}
+
+function mousePressed() {
+  // resume audio context on click too (helpful for mobile / browsers)
+  try { if (typeof getAudioContext === 'function') getAudioContext().resume(); } catch (e) {}
 }
 
 function resetGame() {
   currentBg = 0;
-  playerX = 0;                  // 3/4 of the screen width
-  playerY = 790; // stand on platform
+  playerX = 0;
+  playerY = 790; // keep player at same visible height
   sparkles = [];
   currentFrame = 0;
   frameCounter = 0;
   playerDirection = "right";
+
+  // stop any memory audio when resetting
+  stopMemorySoundIfPlaying();
+}
+
+/* -----------------------
+   Audio helper functions
+   ----------------------- */
+
+// Ensure we only play the sound that matches the current background while in memory,
+// and stop the previous sound when the background changes or when leaving memory.
+function manageMemoryAudio() {
+  // sanity: if no sounds loaded yet, skip
+  if (!aSounds || aSounds.length === 0) return;
+
+  // if the index doesn't match, switch sounds
+  if (currentSoundIndex !== currentBg) {
+    // stop previous
+    if (currentSoundIndex !== -1 && aSounds[currentSoundIndex] && aSounds[currentSoundIndex].isPlaying()) {
+      try { aSounds[currentSoundIndex].stop(); } catch (e) { console.warn('stop error', e); }
+    }
+
+    // set new index
+    currentSoundIndex = currentBg;
+
+    // play new sound if loaded
+    let s = aSounds[currentSoundIndex];
+    if (s && aSoundsLoaded[currentSoundIndex]) {
+      try {
+        // resume audio context in case browser blocked it until a user gesture
+        if (typeof getAudioContext === 'function') getAudioContext().resume();
+      } catch (e) {}
+
+      try {
+        // loop the background audio so it continues while user navigates
+        s.loop();
+        console.log('Now playing audio index', currentSoundIndex);
+      } catch (e) {
+        console.error('Error while trying to play sound index', currentSoundIndex, e);
+      }
+    } else {
+      console.warn('Audio not ready for background index', currentSoundIndex);
+    }
+  }
+}
+
+// Stop any playing memory audio and reset index
+function stopMemorySoundIfPlaying() {
+  if (currentSoundIndex !== -1 && aSounds[currentSoundIndex]) {
+    try { aSounds[currentSoundIndex].stop(); } catch (e) { /* ignore */ }
+  }
+  currentSoundIndex = -1;
 }
