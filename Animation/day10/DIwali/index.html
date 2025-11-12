@@ -4,15 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sketch</title>
+
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+  <!-- Canvas will appear here automatically -->
 
-  <!-- Local p5 and p5.sound (make sure these files exist) -->
-  <script src="libraries/p5.min.js"></script>
-  <script src="libraries/p5.sound.min.js"></script>
+  <!-- ✅ Load p5.js first -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
 
-  <!-- Your sketch (only once) -->
+  <!-- ✅ Then load p5.sound.js (needed for loadSound / audio) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+
+  <!-- ✅ Finally, load your sketch -->
   <script src="sketch.js"></script>
 </body>
 </html>
